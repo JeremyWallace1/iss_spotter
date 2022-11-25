@@ -11,4 +11,21 @@ const fetchCoordsByIP = function(body) {
   return request(`http://ipwho.is/${ip}`);
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = function(body) {
+  // use request to fetch coords from JSON API
+  const { latitude, longitude } = JSON.parse(body);
+  const url = `https://iss-flyover.herokuapp.com/json/?lat=${latitude}&lon=${longitude}`;
+  return request(url);
+};
+
+const nextISSTimesForMyLocation = function() {
+  return fetchMyIP()
+    .then(fetchCoordsByIP)
+    .then(fetchISSFlyOverTimes)
+    .then((data) => {
+      const { response } = JSON.parse(data);
+      return response;
+    });
+};
+
+module.exports = { nextISSTimesForMyLocation };
