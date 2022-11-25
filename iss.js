@@ -29,13 +29,14 @@ const fetchMyIP = function(callback) {
 const fetchCoordsByIP = function(ip, callback) {
   // use request to fetch coords from JSON API
   request(`http://ipwho.is/${ip}`, (error, response, body) => {
-    const parsedBody = JSON.parse(body);
-    const longitude = parsedBody.longitude;
-    const latitude = parsedBody.latitude;
     if (error) {
       callback(error, null);
       return;
     }
+
+    const parsedBody = JSON.parse(body);
+    const { longitude, latitude } = parsedBody;
+
     if (!parsedBody.success) {
       const message = `Success status was ${parsedBody.success}. Server message says: ${parsedBody.message} when fetching for IP ${parsedBody.ip}`;
       callback(Error(message), null);
