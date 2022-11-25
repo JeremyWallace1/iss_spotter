@@ -8,7 +8,7 @@ const request = require("request");
  *   - An error, if any (nullable)
  *   - The IP address as a string (null if error). Example: "162.245.144.188"
  */
-const fetchMyIP = function(callback) { 
+const fetchMyIP = function(callback) {
   // use request to fetch IP address from JSON API
   request('https://api.ipify.org?format=json', (error, response, body) => {
     if (error) {
@@ -21,9 +21,29 @@ const fetchMyIP = function(callback) {
       callback(Error(msg), null);
       return;
     }
-    
+
     callback(null, JSON.parse(body).ip);
   });
 };
   
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = function(ip, callback) {
+  // use request to fetch coords from JSON API
+  request(`http://ipwho.is/${ip}`, (error, response, body) => {
+    const parsedBody = JSON.parse(body);
+    const longitude = parsedBody.longitude;
+    const latitude = parsedBody.latitude;
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (!parsedBody.success) {
+      const message = `Success status was ${parsedBody.success}. Server message says: ${parsedBody.message} when fetching for IP ${parsedBody.ip}`;
+      callback(Error(message), null);
+      return;
+    }
+    callback(null, {longitude, latitude});
+    return;
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
